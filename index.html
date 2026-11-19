@@ -342,7 +342,9 @@ function render() {
   let firstAv = d.formats.findIndex(f => f.kind === "av");
   if (firstAv < 0) firstAv = d.formats.findIndex(f => f.kind === "merge");
   const items = d.formats.map((f, i) => {
-    const desc = f.kind === "av" ? "Hình + tiếng" : f.kind === "merge" ? "Hình + tiếng (máy chủ ghép) · chỉ gửi qua Telegram" : f.kind === "video" ? "Chỉ hình, không tiếng" : "Chỉ âm thanh";
+    const res = f.width && f.height ? `${f.width}×${f.height}` : f.height ? `${f.height}p` : "";
+    const desc = f.kind === "audio" ? "Chỉ âm thanh"
+      : [res, f.kind === "merge" ? "chỉ gửi qua Telegram" : ""].filter(Boolean).join(" · ") || "Video";
     const badges = (i === firstAv ? `<span class="badge b-best">Khuyên dùng</span>` : "")
       + (f.filesize && f.filesize > lim ? `<span class="badge b-big">&gt; 50MB</span>` : "")
       + (f.kind === "video" ? `<span class="badge b-mute">Không tiếng</span>` : "")

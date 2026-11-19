@@ -82,12 +82,13 @@ def douyin_info(url: str):
     if not play:
         raise ValueError("Không lấy được link phát của video Douyin.")
     play_nowm = play.replace("playwm", "play")
-    h = video.get("height")
-    formats = [{"label": f"Không logo {h or ''}p".replace(" p", ""), "url": play_nowm, "ext": "mp4",
-                "kind": "av", "height": h, "filesize": None}]
+    h, w = video.get("height"), video.get("width")
+    q = f"{h}p" if h else ""
+    formats = [{"label": f"Video {q} không logo".replace("  ", " "), "url": play_nowm, "ext": "mp4",
+                "kind": "av", "height": h, "width": w, "filesize": None}]
     if play_nowm != play:
-        formats.append({"label": "Có logo", "url": play, "ext": "mp4",
-                        "kind": "av", "height": h, "filesize": None})
+        formats.append({"label": f"Video {q} có logo".replace("  ", " "), "url": play, "ext": "mp4",
+                        "kind": "av", "height": h, "width": w, "filesize": None})
     music = (item.get("music", {}).get("play_url", {}).get("url_list") or [None])[0]
     if music:
         formats.append({"label": "Nhạc nền MP3", "url": music, "ext": "mp3",
@@ -117,10 +118,10 @@ def ytdlp_info(url: str):
         has_v = vc != "none" and not (vc is None and f.get("video_ext") == "none")
         has_a = ac != "none" and not (ac is None and f.get("audio_ext") == "none")
         h, ext = f.get("height"), f.get("ext") or "mp4"
-        item = {"url": furl, "ext": ext, "height": h, "q": f.get("quality") or 0,
+        item = {"url": furl, "ext": ext, "height": h, "width": f.get("width"), "q": f.get("quality") or 0,
                 "filesize": f.get("filesize") or f.get("filesize_approx"), "fid": f.get("format_id") or ""}
         if has_v and has_a:
-            name = f"{h}p" if h else (item["fid"].upper() or "Video")
+            name = f"Video {h}p" if h else f"Video {item['fid'].upper()}".strip()
             av.append({**item, "kind": "av", "label": name})
         elif has_v:
             vonly.append({**item, "kind": "video"})
@@ -152,8 +153,8 @@ def ytdlp_info(url: str):
         for v in dedupe(vonly, lambda x: x["height"]):
             if (v["height"] or 0) > top_av and v["ext"] == "mp4" and best_audio["ext"] == "m4a":
                 size = (v["filesize"] + best_audio["filesize"]) if v["filesize"] and best_audio["filesize"] else None
-                merged.append({"kind": "merge", "label": f"{v['height']}p ghép tiếng", "ext": "mp4",
-                               "height": v["height"], "url": "", "video_url": v["url"],
+                merged.append({"kind": "merge", "label": f"Video {v['height']}p", "ext": "mp4",
+                               "height": v["height"], "width": v.get("width"), "url": "", "video_url": v["url"],
                                "audio_url": best_audio["url"], "filesize": size,
                                "v_size": v["filesize"], "a_size": best_audio["filesize"]})
         # đã có bản sẵn tiếng: chỉ thêm 1 bản ghép cao nhất; chưa có: tối đa 3 bản
