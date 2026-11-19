@@ -26,7 +26,7 @@ TG_LIMIT = 50 * 1024 * 1024          # bot Telegram gửi tối đa 50MB
 TG_TOKEN = os.environ.get("TG_BOT_TOKEN", "")
 TG_BOT_USERNAME = os.environ.get("TG_BOT_USERNAME", "PLT_TaiVideo_bot")
 LINK_SECRET = os.environ.get("LINK_SECRET", "doi-chuoi-bi-mat-nay")
-SITE_URL = os.environ.get("SITE_URL", "https://plt-save.phatloctech.vn").rstrip("/")
+SITE_URL = os.environ.get("SITE_URL", "https://v-save.phatloctech.vn").rstrip("/")
 SHOP_URL = os.environ.get("SHOP_URL", "https://phatloctech.vn")
 
 PROMO = (f"📥 Tải bởi PLT Tải Video – {SITE_URL.replace('https://', '')}\n"
