@@ -1,4 +1,4 @@
-# PLT Tải Video – Web v1.1.0 (build 20261119-1605)
+# PLT Tải Video – Web v1.2.0 (build 20261119-1625)
 
 Tính năng: chọn chất lượng có hiện dung lượng → chọn nơi lưu: **Tải về máy** hoặc **Gửi qua Telegram** (bot, ≤50MB).
 Góc **Extension** chỉ hiện trên máy tính, file nằm ở `download/plt-taivideo-ext.zip`.

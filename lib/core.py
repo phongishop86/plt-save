@@ -11,6 +11,7 @@ import hmac
 import json
 import os
 import re
+import subprocess
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
@@ -106,36 +107,62 @@ def ytdlp_info(url: str):
     if info.get("_type") == "playlist" and info.get("entries"):
         info = next(e for e in info["entries"] if e)
 
-    out = []
+    av, vonly, aonly = [], [], []
     for f in info.get("formats") or []:
         furl, proto = f.get("url"), f.get("protocol") or ""
         if not furl or not proto.startswith("http"):
             continue
-        v = f.get("vcodec") not in (None, "none")
-        a = f.get("acodec") not in (None, "none")
-        kind = "av" if (v and a) else ("video" if v else ("audio" if a else None))
-        if not kind:
-            continue
+        vc, ac = f.get("vcodec"), f.get("acodec")
+        # yt-dlp: "none" = KHÔNG có; None = không rõ (bản HD/SD Facebook có tiếng thuộc loại này)
+        has_v = vc != "none" and not (vc is None and f.get("video_ext") == "none")
+        has_a = ac != "none" and not (ac is None and f.get("audio_ext") == "none")
         h, ext = f.get("height"), f.get("ext") or "mp4"
-        if kind == "audio":
+        item = {"url": furl, "ext": ext, "height": h, "q": f.get("quality") or 0,
+                "filesize": f.get("filesize") or f.get("filesize_approx"), "fid": f.get("format_id") or ""}
+        if has_v and has_a:
+            name = f"{h}p" if h else (item["fid"].upper() or "Video")
+            av.append({**item, "kind": "av", "label": name})
+        elif has_v:
+            vonly.append({**item, "kind": "video"})
+        elif has_a:
             abr = f.get("abr")
-            label = f"Âm thanh {ext.upper()}" + (f" {int(abr)}k" if abr else "")
-        else:
-            q = f"{h}p" if h else (f.get("format_note") or f.get("format_id") or "").upper()
-            label = q + ("" if kind == "av" else " (không tiếng)")
-        out.append({"label": label, "url": furl, "ext": ext, "kind": kind, "height": h,
-                    "filesize": f.get("filesize") or f.get("filesize_approx")})
+            aonly.append({**item, "kind": "audio", "abr": abr or 0,
+                          "label": f"Âm thanh {ext.upper()}" + (f" {int(abr)}k" if abr else "")})
 
-    order = {"av": 0, "video": 1, "audio": 2}
-    out.sort(key=lambda x: (order[x["kind"]], -(x["height"] or 0), -(x["filesize"] or 0)))
-    seen, formats = set(), []
-    for f in out:
-        key = (f["kind"], f["height"], f["ext"]) if f["kind"] != "audio" else ("audio",)
-        if key in seen:
-            continue
-        seen.add(key)
-        formats.append(f)
-    formats = formats[:8]
+    def dedupe(lst, key):
+        seen, res = set(), []
+        for x in lst:
+            k = key(x)
+            if k not in seen:
+                seen.add(k)
+                res.append(x)
+        return res
+
+    av.sort(key=lambda x: (-(x["height"] or 0), -x["q"], -(x["filesize"] or 0)))
+    av = dedupe(av, lambda x: x["label"])[:4]
+    # âm thanh tốt nhất, ưu tiên m4a (ghép vào mp4 được)
+    aonly.sort(key=lambda x: (x["ext"] != "m4a", -x["abr"], -(x["filesize"] or 0)))
+    best_audio = aonly[0] if aonly else None
+
+    # Bản GHÉP hình + tiếng (máy chủ ghép, gửi qua Telegram): chỉ cho độ phân giải cao hơn bản có sẵn tiếng
+    merged = []
+    if best_audio:
+        top_av = max([x["height"] or 0 for x in av] or [0])
+        vonly.sort(key=lambda x: (x["ext"] != "mp4", -(x["height"] or 0), -(x["filesize"] or 0)))
+        for v in dedupe(vonly, lambda x: x["height"]):
+            if (v["height"] or 0) > top_av and v["ext"] == "mp4" and best_audio["ext"] == "m4a":
+                size = (v["filesize"] + best_audio["filesize"]) if v["filesize"] and best_audio["filesize"] else None
+                merged.append({"kind": "merge", "label": f"{v['height']}p ghép tiếng", "ext": "mp4",
+                               "height": v["height"], "url": "", "video_url": v["url"],
+                               "audio_url": best_audio["url"], "filesize": size,
+                               "v_size": v["filesize"], "a_size": best_audio["filesize"]})
+        # đã có bản sẵn tiếng: chỉ thêm 1 bản ghép cao nhất; chưa có: tối đa 3 bản
+        merged = merged[:1] if av else merged[:3]
+
+    formats = av + merged + ([best_audio] if best_audio else [])
+    for f in formats:
+        for k in ("q", "fid", "abr"):
+            f.pop(k, None)
     if not formats and info.get("url"):
         formats = [{"label": "Video", "url": info["url"], "ext": info.get("ext", "mp4"),
                     "kind": "av", "height": info.get("height"), "filesize": None}]
@@ -166,13 +193,24 @@ def probe_size(url, platform):
 
 
 def fill_sizes(formats, platform):
-    need = [f for f in formats if not f.get("filesize")]
-    if not need:
-        return
-    with ThreadPoolExecutor(max_workers=8) as ex:
-        for f, n in zip(need, ex.map(lambda f: probe_size(f["url"], platform), need)):
-            f["filesize"] = n
+    jobs = []  # (format, khoá dung lượng, url)
     for f in formats:
+        if f.get("filesize"):
+            continue
+        if f["kind"] == "merge":
+            if not f.get("v_size"):
+                jobs.append((f, "v_size", f["video_url"]))
+            if not f.get("a_size"):
+                jobs.append((f, "a_size", f["audio_url"]))
+        else:
+            jobs.append((f, "filesize", f["url"]))
+    if jobs:
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for (f, key, _), n in zip(jobs, ex.map(lambda j: probe_size(j[2], platform), jobs)):
+                f[key] = n
+    for f in formats:
+        if f["kind"] == "merge" and not f.get("filesize") and f.get("v_size") and f.get("a_size"):
+            f["filesize"] = f["v_size"] + f["a_size"]
         f["filesize"] = int(f["filesize"]) if f.get("filesize") else None
 
 
@@ -269,10 +307,38 @@ def safe_name(s):
     return re.sub(r"\s+", " ", s).strip()[:60] or "video"
 
 
+def ffmpeg_exe():
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return "ffmpeg"
+
+
+def merge_av(video_path, audio_path):
+    """Ghép hình + tiếng, không mã hoá lại (rất nhanh)."""
+    out = video_path.rsplit(".", 1)[0] + "_merged.mp4"
+    cmd = [ffmpeg_exe(), "-y", "-loglevel", "error", "-i", video_path, "-i", audio_path,
+           "-map", "0:v:0", "-map", "1:a:0", "-c", "copy", "-movflags", "+faststart", out]
+    r = subprocess.run(cmd, capture_output=True, timeout=40)
+    if r.returncode != 0 or not os.path.exists(out):
+        raise ValueError("Ghép hình và tiếng thất bại, vui lòng chọn chất lượng khác.")
+    if os.path.getsize(out) > TG_LIMIT:
+        os.remove(out)
+        raise ValueError("Video sau khi ghép lớn hơn 50MB, vui lòng chọn chất lượng thấp hơn.")
+    return out
+
+
 def send_to_chat(chat_id, info, fmt, platform):
     title = info.get("title") or "Video"
-    path = download_tmp(fmt["url"], platform, fmt["ext"])
+    paths = []
     try:
+        if fmt["kind"] == "merge":
+            v = download_tmp(fmt["video_url"], platform, "mp4"); paths.append(v)
+            a = download_tmp(fmt["audio_url"], platform, "m4a"); paths.append(a)
+            path = merge_av(v, a); paths.append(path)
+        else:
+            path = download_tmp(fmt["url"], platform, fmt["ext"]); paths.append(path)
         caption = f"🎬 {title[:300]}\n🎞 {fmt['label']}\n\n{PROMO}"
         fname = f"{safe_name(title)}_{safe_name(fmt['label'])}.{fmt['ext']}"
         with open(path, "rb") as fh:
@@ -286,18 +352,22 @@ def send_to_chat(chat_id, info, fmt, platform):
                 tg("sendDocument", data={"chat_id": chat_id, "caption": caption},
                    files={"document": (fname, fh)})
     finally:
-        try:
-            os.remove(path)
-        except OSError:
-            pass
+        for p in paths:
+            try:
+                os.remove(p)
+            except OSError:
+                pass
 
 
 def pick_format(formats, label=None):
-    """Chọn theo nhãn người dùng chọn, hoặc bản có tiếng tốt nhất ≤50MB."""
+    """Chọn theo nhãn người dùng chọn, hoặc bản CÓ TIẾNG tốt nhất ≤50MB (sẵn tiếng trước, rồi bản ghép)."""
     if label:
         for f in formats:
             if f["label"] == label:
                 return f
-    cands = [f for f in formats if f["kind"] == "av" and (f.get("filesize") or 0) <= TG_LIMIT]
-    cands = [f for f in cands if f.get("filesize")] or cands
-    return cands[0] if cands else None
+    for kind in ("av", "merge"):
+        c = [f for f in formats if f["kind"] == kind and f.get("filesize") and f["filesize"] <= TG_LIMIT]
+        if c:
+            return c[0]
+    c = [f for f in formats if f["kind"] == "av"]
+    return c[-1] if c else None

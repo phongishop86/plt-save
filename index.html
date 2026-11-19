@@ -114,7 +114,7 @@ footer a:hover{color:#fff}
 .q small{display:block;color:var(--muted);font-size:12px}
 .q .sz{font-weight:700;font-size:13px;white-space:nowrap}
 .badge{white-space:nowrap;display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:6px;vertical-align:1px}
-.b-best{background:#DCFCE7;color:#15803D}.b-big{background:#FEF3C7;color:#B45309}.b-mute{background:#F1F5F9;color:#64748B}
+.b-best{background:#DCFCE7;color:#15803D}.b-tg{background:#E0F2FE;color:#0369A1}.b-big{background:#FEF3C7;color:#B45309}.b-mute{background:#F1F5F9;color:#64748B}
 .ch-title{font-weight:700;font-size:14px;margin:6px 0 8px}
 .channels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ch{border:0;cursor:pointer;font:inherit;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;text-align:left;color:#fff}
@@ -339,12 +339,14 @@ $("#form").onsubmit = e => { e.preventDefault(); const u = input.value.trim(); i
 
 function render() {
   const d = cur, lim = d.tg_limit || 52428800;
-  const firstAv = d.formats.findIndex(f => f.kind === "av");
+  let firstAv = d.formats.findIndex(f => f.kind === "av");
+  if (firstAv < 0) firstAv = d.formats.findIndex(f => f.kind === "merge");
   const items = d.formats.map((f, i) => {
-    const desc = f.kind === "av" ? "Hình + tiếng" : f.kind === "video" ? "Chỉ hình, không tiếng" : "Chỉ âm thanh";
+    const desc = f.kind === "av" ? "Hình + tiếng" : f.kind === "merge" ? "Hình + tiếng (máy chủ ghép) · chỉ gửi qua Telegram" : f.kind === "video" ? "Chỉ hình, không tiếng" : "Chỉ âm thanh";
     const badges = (i === firstAv ? `<span class="badge b-best">Khuyên dùng</span>` : "")
       + (f.filesize && f.filesize > lim ? `<span class="badge b-big">&gt; 50MB</span>` : "")
-      + (f.kind === "video" ? `<span class="badge b-mute">Không tiếng</span>` : "");
+      + (f.kind === "video" ? `<span class="badge b-mute">Không tiếng</span>` : "")
+      + (f.kind === "merge" ? `<span class="badge b-tg">✈ Telegram</span>` : "");
     return `<label class="q ${i === sel ? "on" : ""}">
       <input type="radio" name="q" value="${i}" ${i === sel ? "checked" : ""}>
       <div class="ql"><b>${esc(f.label)}</b>${badges}<small>${desc} · ${esc(f.ext.toUpperCase())}</small></div>
@@ -360,7 +362,7 @@ function render() {
         <div class="q-list">${items}</div>
         <div class="ch-title">2. Chọn nơi lưu</div>
         <div class="channels">
-          <button class="ch ch-dl" id="btn-dl"><span class="ic">⬇️</span><span><b>Tải về máy</b><small>Lưu vào điện thoại / máy tính</small></span></button>
+          <button class="ch ch-dl" id="btn-dl"><span class="ic">⬇️</span><span><b>Tải về máy</b><small id="dl-sub">Lưu vào điện thoại / máy tính</small></span></button>
           <button class="ch ch-tg" id="btn-tg"><span class="ic">✈️</span><span><b>Gửi qua Telegram</b><small id="tg-sub">Bot gửi video cho bạn</small></span></button>
         </div>
         <div class="tg-state" id="tg-state"></div>
@@ -370,6 +372,7 @@ function render() {
 
   res.querySelectorAll('input[name="q"]').forEach(r => r.onchange = () => { sel = +r.value; render(); });
   $("#btn-dl").onclick = () => {
+    if (!d.formats[sel].url) return;
     window.open(d.formats[sel].url, "_blank", "noopener,noreferrer");
     $("#dl-tip").style.display = "block";
   };
@@ -381,6 +384,9 @@ function updateTgState() {
   if (!cur) return;
   const f = cur.formats[sel], lim = cur.tg_limit || 52428800;
   const btn = $("#btn-tg"), sub = $("#tg-sub");
+  const isMerge = f.kind === "merge";
+  $("#btn-dl").disabled = isMerge;
+  $("#dl-sub").textContent = isMerge ? "Bản ghép chỉ gửi được qua Telegram" : "Lưu vào điện thoại / máy tính";
   const tooBig = f.filesize && f.filesize > lim;
   btn.disabled = !!tooBig;
   sub.textContent = tooBig ? "Quá 50MB, chọn chất lượng thấp hơn" : f.filesize ? "Bot gửi video cho bạn" : "Chưa rõ dung lượng, vẫn thử được";
