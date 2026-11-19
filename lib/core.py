@@ -13,6 +13,8 @@ import os
 import re
 import subprocess
 import tempfile
+import time
+import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
@@ -238,6 +240,8 @@ def get_info(raw: str, with_size=True):
             fill_sizes(data["formats"], platform)
         for f in data["formats"]:
             f["tg_ok"] = bool(f.get("filesize")) and f["filesize"] <= TG_LIMIT
+            if f["kind"] == "merge":
+                f["dl"] = make_dl(f, data.get("title") or "video", platform)
         return 200, {"ok": True, "platform": platform, "link": url, "tg_limit": TG_LIMIT, **data}
     except Exception as e:  # noqa
         return 422, {"ok": False, "platform": platform, "error": friendly_error(e)}
@@ -273,6 +277,54 @@ def read_token(token: str):
         return int(cid) if hmac.compare_digest(good, sig) else None
     except Exception:
         return None
+
+
+# ---------------- LINK TẢI BẢN GHÉP (ký HMAC, hết hạn sau 2 giờ) ----------------
+DL_HOSTS = ("fbcdn.net", "googlevideo.com", "douyinvod.com", "zjcdn.com", "bytecdn.cn",
+            "amemv.com", "snssdk.com", "douyin.com", "ibytedtos.com", "byteimg.com")
+
+
+def _b64e(b):
+    return base64.urlsafe_b64encode(b).decode().rstrip("=")
+
+
+def _b64d(s):
+    return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
+
+
+def make_dl(fmt, title, platform):
+    payload = {"v": fmt["video_url"], "a": fmt["audio_url"], "p": platform,
+               "n": f"{safe_name(title)}_{safe_name(fmt['label'])}.mp4", "x": int(time.time()) + 7200}
+    d = _b64e(json.dumps(payload, separators=(",", ":")).encode())
+    sig = hmac.new(LINK_SECRET.encode(), d.encode(), hashlib.sha256).hexdigest()[:32]
+    return f"/api/dl?d={d}&s={sig}"
+
+
+def read_dl(d, sig):
+    if not d or not sig:
+        return None
+    good = hmac.new(LINK_SECRET.encode(), d.encode(), hashlib.sha256).hexdigest()[:32]
+    if not hmac.compare_digest(good, sig):
+        return None
+    try:
+        p = json.loads(_b64d(d))
+    except Exception:
+        return None
+    if p.get("x", 0) < time.time():
+        return None
+    for u in (p.get("v"), p.get("a")):
+        host = urllib.parse.urlparse(u or "").hostname or ""
+        if not any(host == h or host.endswith("." + h) for h in DL_HOSTS):
+            return None
+    return p
+
+
+def stream_merge_cmd(video_url, audio_url, platform):
+    """Lệnh ffmpeg ghép 2 luồng từ link, xuất MP4 phân mảnh ra stdout để truyền thẳng về trình duyệt."""
+    ua = ua_for(platform)
+    return [ffmpeg_exe(), "-loglevel", "error", "-user_agent", ua, "-i", video_url,
+            "-user_agent", ua, "-i", audio_url, "-map", "0:v:0", "-map", "1:a:0", "-c", "copy",
+            "-movflags", "frag_keyframe+empty_moov+default_base_moof", "-f", "mp4", "pipe:1"]
 
 
 # ---------------- TELEGRAM ----------------

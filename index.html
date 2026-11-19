@@ -344,11 +344,10 @@ function render() {
   const items = d.formats.map((f, i) => {
     const res = f.width && f.height ? `${f.width}×${f.height}` : f.height ? `${f.height}p` : "";
     const desc = f.kind === "audio" ? "Chỉ âm thanh"
-      : [res, f.kind === "merge" ? "chỉ gửi qua Telegram" : ""].filter(Boolean).join(" · ") || "Video";
+      : res || "Video";
     const badges = (i === firstAv ? `<span class="badge b-best">Khuyên dùng</span>` : "")
       + (f.filesize && f.filesize > lim ? `<span class="badge b-big">&gt; 50MB</span>` : "")
-      + (f.kind === "video" ? `<span class="badge b-mute">Không tiếng</span>` : "")
-      + (f.kind === "merge" ? `<span class="badge b-tg">✈ Telegram</span>` : "");
+      + (f.kind === "video" ? `<span class="badge b-mute">Không tiếng</span>` : "");
     return `<label class="q ${i === sel ? "on" : ""}">
       <input type="radio" name="q" value="${i}" ${i === sel ? "checked" : ""}>
       <div class="ql"><b>${esc(f.label)}</b>${badges}<small>${desc} · ${esc(f.ext.toUpperCase())}</small></div>
@@ -374,8 +373,14 @@ function render() {
 
   res.querySelectorAll('input[name="q"]').forEach(r => r.onchange = () => { sel = +r.value; render(); });
   $("#btn-dl").onclick = () => {
-    if (!d.formats[sel].url) return;
-    window.open(d.formats[sel].url, "_blank", "noopener,noreferrer");
+    const f = d.formats[sel];
+    if (f.kind === "merge" && f.dl) {          // máy chủ ghép rồi tải thẳng về máy
+      location.href = f.dl;
+      $("#dl-sub").textContent = "Đang chuẩn bị file, sẽ tự tải sau vài giây...";
+      toast("⏳ Đang ghép video, file sẽ tự tải về sau vài giây");
+      return;
+    }
+    window.open(f.url, "_blank", "noopener,noreferrer");
     $("#dl-tip").style.display = "block";
   };
   $("#btn-tg").onclick = sendTelegram;
@@ -386,9 +391,8 @@ function updateTgState() {
   if (!cur) return;
   const f = cur.formats[sel], lim = cur.tg_limit || 52428800;
   const btn = $("#btn-tg"), sub = $("#tg-sub");
-  const isMerge = f.kind === "merge";
-  $("#btn-dl").disabled = isMerge;
-  $("#dl-sub").textContent = isMerge ? "Bản ghép chỉ gửi được qua Telegram" : "Lưu vào điện thoại / máy tính";
+  $("#btn-dl").disabled = f.kind === "merge" && !f.dl;
+  $("#dl-sub").textContent = "Lưu vào điện thoại / máy tính";
   const tooBig = f.filesize && f.filesize > lim;
   btn.disabled = !!tooBig;
   sub.textContent = tooBig ? "Quá 50MB, chọn chất lượng thấp hơn" : f.filesize ? "Bot gửi video cho bạn" : "Chưa rõ dung lượng, vẫn thử được";
