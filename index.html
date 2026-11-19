@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tải video Facebook, Douyin, YouTube miễn phí | Phát Lộc Tech</title>
+<meta name="description" content="Tải video Facebook, Douyin không logo, YouTube nhanh, miễn phí, không cần cài đặt. Công cụ miễn phí từ Phát Lộc Tech - linh phụ kiện máy tính & dịch vụ tin học.">
+<meta property="og:title" content="Tải video Facebook, Douyin, YouTube miễn phí - Phát Lộc Tech">
+<meta property="og:description" content="Dán link, bấm tải. Nhanh, miễn phí, không quảng cáo phiền phức.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#16213E; --navy2:#0F172A; --orange:#F26B1D; --red:#E63946; --green:#2BB673; --purple:#7B4BD8;
+  --bg:#F6F7FB; --card:#fff; --text:#1E293B; --muted:#64748B; --line:#E2E8F0;
+  --grad:linear-gradient(120deg,var(--orange),var(--green) 55%,var(--purple));
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Be Vietnam Pro",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+
+/* header */
+header{background:var(--navy2);position:sticky;top:0;z-index:20}
+.nav{display:flex;align-items:center;justify-content:space-between;height:62px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:18px}
+.brand small{display:block;font-weight:500;font-size:11px;color:#94A3B8;letter-spacing:.3px}
+.nav-links{display:flex;gap:22px;color:#CBD5E1;font-size:14px}
+.nav-links a:hover{color:#fff}
+.btn-zalo{background:var(--green);color:#fff;padding:8px 14px;border-radius:10px;font-weight:600;font-size:14px}
+@media(max-width:720px){.nav-links{display:none}}
+@media(max-width:560px){.brand small{display:none}.brand{font-size:16px}.btn-zalo{padding:7px 10px;font-size:13px;white-space:nowrap}}
+
+/* hero */
+.hero{background:radial-gradient(1200px 400px at 50% -10%,#24305E,var(--navy2));color:#fff;padding:54px 0 90px;text-align:center}
+.hero h1{font-size:clamp(26px,4.5vw,42px);line-height:1.2;font-weight:800}
+.hero h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:#CBD5E1;margin:12px auto 26px;max-width:620px}
+.tabs{display:flex;justify-content:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:14px;color:#E2E8F0}
+.tab.on{background:#fff;color:var(--navy)}
+.tab i{width:18px;height:18px;border-radius:5px;display:inline-grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;color:#fff}
+.box{max-width:720px;margin:0 auto;background:#fff;border-radius:16px;padding:8px;display:flex;gap:8px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.box input{flex:1;border:0;outline:0;font:inherit;font-size:16px;padding:12px 14px;color:var(--text);min-width:0}
+.box button{border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:12px;padding:0 18px}
+#paste{background:#EEF2FF;color:var(--purple)}
+#go{background:var(--grad);color:#fff;padding:0 26px;font-size:16px}
+#go:disabled{opacity:.6;cursor:wait}
+@media(max-width:560px){.box{flex-wrap:wrap}.box input{flex-basis:100%}.box button{flex:1;padding:12px}}
+.hint{font-size:13px;color:#94A3B8;margin-top:12px}
+
+/* result */
+#result{max-width:760px;margin:-56px auto 0;position:relative;z-index:2}
+.card{background:var(--card);border-radius:16px;box-shadow:0 10px 30px rgba(15,23,42,.08);padding:18px}
+.res{display:flex;gap:16px}
+.res img{width:180px;aspect-ratio:9/12;object-fit:cover;border-radius:12px;background:#E2E8F0;flex-shrink:0}
+.res h3{font-size:16px;line-height:1.4;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta{font-size:13px;color:var(--muted);margin-bottom:12px}
+.fmt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px dashed var(--line)}
+.fmt b{font-size:14px;font-weight:600}
+.fmt small{color:var(--muted);margin-left:6px}
+.fmt .acts{display:flex;gap:6px}
+.dl{background:var(--green);color:#fff;font-weight:600;font-size:14px;padding:7px 14px;border-radius:9px;white-space:nowrap}
+.cp{background:#F1F5F9;border:0;cursor:pointer;font:inherit;font-size:13px;padding:7px 10px;border-radius:9px}
+.err{color:var(--red);font-weight:600;text-align:center}
+.loading{text-align:center;color:var(--muted)}
+.spin{width:28px;height:28px;border:3px solid #E2E8F0;border-top-color:var(--orange);border-radius:50%;animation:s 1s linear infinite;margin:0 auto 8px}
+@keyframes s{to{transform:rotate(360deg)}}
+.tip{font-size:13px;background:#FFF7ED;color:#9A3412;padding:10px 12px;border-radius:10px;margin-top:12px}
+@media(max-width:560px){.res{flex-direction:column}.res img{width:100%;aspect-ratio:16/10}}
+
+/* promo */
+section{padding:56px 0 0}
+.sec-title{text-align:center;font-size:clamp(22px,3vw,30px);font-weight:800;margin-bottom:6px}
+.sec-sub{text-align:center;color:var(--muted);margin-bottom:26px}
+.promo{background:var(--navy2);color:#fff;border-radius:20px;padding:28px;display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:center;overflow:hidden;position:relative}
+.promo:before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--grad)}
+.promo h2{font-size:26px;line-height:1.25}
+.promo p{color:#CBD5E1;margin:10px 0 18px}
+.promo .cta{display:flex;gap:10px;flex-wrap:wrap}
+.cta a{padding:10px 16px;border-radius:10px;font-weight:700}
+.cta .p1{background:var(--orange);color:#fff}
+.cta .p2{border:1px solid #475569}
+.svc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.svc div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;font-size:14px}
+.svc div b{display:block;font-size:15px;margin-bottom:2px}
+@media(max-width:760px){.promo{grid-template-columns:1fr}}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.step{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--line)}
+.step em{font-style:normal;display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;margin-bottom:8px}
+.step h4{margin-bottom:4px}
+.step p{font-size:14px;color:var(--muted)}
+@media(max-width:720px){.steps{grid-template-columns:1fr}}
+details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+summary{font-weight:600;cursor:pointer}
+details p{color:var(--muted);font-size:14px;margin-top:8px}
+footer{margin-top:60px;background:var(--navy2);color:#94A3B8;font-size:13px;padding:28px 0}
+footer .f{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer b{color:#fff}
+.legal{margin-top:14px;font-size:12px;color:#64748B}
+/* chọn chất lượng */
+.q-list{display:grid;gap:8px;margin:4px 0 14px}
+.q{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;background:#fff}
+.q:hover{border-color:#CBD5E1}
+.q.on{border-color:var(--green);background:#F0FDF7}
+.q input{accent-color:var(--green);width:16px;height:16px}
+.q .ql{flex:1;min-width:0}
+.q b{font-size:14px}
+.q small{display:block;color:var(--muted);font-size:12px}
+.q .sz{font-weight:700;font-size:13px;white-space:nowrap}
+.badge{white-space:nowrap;display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:6px;vertical-align:1px}
+.b-best{background:#DCFCE7;color:#15803D}.b-big{background:#FEF3C7;color:#B45309}.b-mute{background:#F1F5F9;color:#64748B}
+.ch-title{font-weight:700;font-size:14px;margin:6px 0 8px}
+.channels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ch{border:0;cursor:pointer;font:inherit;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;text-align:left;color:#fff}
+.ch b{display:block;font-size:15px}
+.ch small{font-size:12px;opacity:.9}
+.ch .ic{font-size:24px}
+.ch-dl{background:var(--green)}
+.ch-tg{background:#229ED9}
+.ch:disabled{background:#CBD5E1;cursor:not-allowed}
+.tg-state{font-size:12.5px;color:var(--muted);margin-top:8px}
+.tg-state a{color:#229ED9;font-weight:600;cursor:pointer}
+@media(max-width:560px){.channels{grid-template-columns:1fr}}
+.toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;z-index:60;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:90vw}
+/* góc extension (chỉ máy tính) */
+.ext-card{position:fixed;left:16px;bottom:16px;width:270px;background:#fff;border-radius:14px;box-shadow:0 12px 34px rgba(15,23,42,.22);padding:14px;z-index:30;border-top:4px solid transparent;border-image:var(--grad) 1;display:none}
+.ext-card .x{position:absolute;right:8px;top:6px;border:0;background:none;font-size:18px;color:#94A3B8;cursor:pointer}
+.ext-card h4{display:flex;align-items:center;gap:8px;font-size:14px}
+.ext-card h4 img{width:28px;height:28px}
+.ext-card p{font-size:12.5px;color:var(--muted);margin:6px 0 10px}
+.ext-card .row{display:flex;gap:6px}
+.ext-card a,.ext-card button.lk{flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:8px;border-radius:9px;cursor:pointer;border:0;font-family:inherit}
+.ext-card .e1{background:var(--navy);color:#fff}
+.ext-card .e2{background:#F1F5F9;color:var(--text)}
+@media(min-width:1024px) and (hover:hover){.ext-card.show{display:block}}
+/* hộp thoại */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;place-items:center;z-index:70;padding:16px}
+.modal.show{display:grid}
+.mbox{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:22px;position:relative}
+.mbox h3{margin-bottom:8px}
+.mbox ol{padding-left:20px;font-size:14px;color:var(--text)}
+.mbox li{margin:6px 0}
+.mbox .x{position:absolute;right:12px;top:8px;border:0;background:none;font-size:22px;color:#94A3B8;cursor:pointer}
+.mbox .big{display:block;text-align:center;background:#229ED9;color:#fff;font-weight:700;padding:12px;border-radius:12px;margin-top:14px}
+.float-zalo{position:fixed;right:16px;bottom:16px;width:54px;height:54px;border-radius:50%;background:#0068FF;color:#fff;display:grid;place-items:center;font-weight:800;box-shadow:0 8px 20px rgba(0,104,255,.4);z-index:30}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#" id="logo-slot"></a>
+    <nav class="nav-links">
+      <a href="#huong-dan">Hướng dẫn</a>
+      <a href="#dich-vu">Dịch vụ</a>
+      <a href="#hoi-dap">Hỏi đáp</a>
+      <a id="web-link" href="#">phatloctech.vn</a>
+    </nav>
+    <a class="btn-zalo" id="zalo-top" href="#" target="_blank" rel="noopener">Zalo tư vấn</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>Tải video <span>Facebook · Douyin · YouTube</span><br>nhanh, miễn phí</h1>
+    <p>Dán link video công khai, bấm tải. Douyin tải được bản không logo. Không cần cài app, không cần đăng nhập.</p>
+    <div class="tabs" id="tabs">
+      <span class="tab on" data-p="facebook"><i style="background:#1877F2">f</i>Facebook</span>
+      <span class="tab" data-p="douyin"><i style="background:#111">抖</i>Douyin</span>
+      <span class="tab" data-p="youtube"><i style="background:#FF0000">▶</i>YouTube</span>
+    </div>
+    <form class="box" id="form">
+      <input id="url" type="text" inputmode="url" placeholder="Dán link video vào đây..." autocomplete="off">
+      <button type="button" id="paste">Dán</button>
+      <button type="submit" id="go">Tải video</button>
+    </form>
+    <div class="hint">Mẹo: Douyin có thể dán nguyên đoạn chữ khi bấm "Chia sẻ → Sao chép liên kết".</div>
+  </div>
+</div>
+
+<div class="wrap"><div id="result"></div></div>
+
+<div class="wrap">
+  <section id="dich-vu">
+    <div class="promo">
+      <div>
+        <h2>Máy tính chậm, cần linh kiện, cần giải pháp IT?</h2>
+        <p id="promo-text"></p>
+        <div class="cta">
+          <a class="p1" id="call-btn" href="#">📞 Gọi ngay</a>
+          <a class="p2" id="web-btn" href="#" target="_blank" rel="noopener">Xem sản phẩm →</a>
+        </div>
+      </div>
+      <div class="svc">
+        <div><b>🖥️ Linh phụ kiện</b>RAM, SSD, chuột, phím, màn hình</div>
+        <div><b>🔧 Sửa chữa, nâng cấp</b>Laptop, PC, máy in tận nơi</div>
+        <div><b>🌐 Mạng & camera</b>Lắp đặt cho văn phòng, cửa hàng</div>
+        <div><b>💡 Giải pháp phần mềm</b>Web, công cụ tự động hoá</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="huong-dan">
+    <h2 class="sec-title">Tải video trong 3 bước</h2>
+    <p class="sec-sub">Dùng được trên điện thoại và máy tính</p>
+    <div class="steps">
+      <div class="step"><em>1</em><h4>Sao chép link</h4><p>Mở video trên Facebook, Douyin hoặc YouTube, bấm Chia sẻ → Sao chép liên kết.</p></div>
+      <div class="step"><em>2</em><h4>Dán và bấm Tải</h4><p>Dán link vào ô phía trên rồi bấm "Tải video". Chờ vài giây.</p></div>
+      <div class="step"><em>3</em><h4>Lưu về máy</h4><p>Bấm "Tải về". Nếu video mở ra trang mới: máy tính bấm chuột phải → Lưu video; điện thoại bấm ⋮ → Tải xuống.</p></div>
+    </div>
+  </section>
+
+  <section id="hoi-dap">
+    <h2 class="sec-title">Hỏi đáp</h2>
+    <p class="sec-sub">&nbsp;</p>
+    <details><summary>Có mất phí không?</summary><p>Hoàn toàn miễn phí, không cần đăng ký.</p></details>
+    <details><summary>Vì sao không tải được video?</summary><p>Chỉ tải được video công khai. Video riêng tư, trong nhóm kín, hoặc đã bị xoá sẽ không tải được.</p></details>
+    <details><summary>Video tải về lưu ở đâu?</summary><p>Máy tính: thư mục Downloads. Điện thoại Android: mục Tải xuống; iPhone: ứng dụng Tệp (Files).</p></details>
+    <details><summary>YouTube đôi khi báo lỗi?</summary><p>YouTube thường xuyên chặn máy chủ tải. Nếu lỗi, vui lòng thử lại sau ít phút.</p></details>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="f">
+      <div><b id="f-name"></b><br><span id="f-addr"></span></div>
+      <div>Hotline: <b id="f-phone"></b><br>Website: <a id="f-web" href="#"><b></b></a></div>
+    </div>
+    <p class="legal">Công cụ chỉ dùng để tải video của chính bạn hoặc video đã được chủ sở hữu cho phép. Chúng tôi không lưu trữ video nào trên máy chủ. Người dùng tự chịu trách nhiệm về việc sử dụng nội dung tải về. Chủ sở hữu bản quyền cần gỡ nội dung xin liên hệ email bên dưới.<br>Liên hệ bản quyền: <span id="f-mail"></span> · Không liên kết với Facebook, Douyin hay YouTube.</p>
+  </div>
+</footer>
+
+<a class="float-zalo" id="zalo-float" href="#" target="_blank" rel="noopener">Zalo</a>
+
+<!-- Góc extension: chỉ hiện trên máy tính -->
+<div class="ext-card" id="ext-card">
+  <button class="x" id="ext-x" title="Ẩn">×</button>
+  <h4><img src="/download/icon48.png" alt="">Extension cho máy tính</h4>
+  <p>Tải video ngay trên Facebook, Douyin, YouTube, không cần copy link. Dùng cho Chrome, Edge, Cốc Cốc.</p>
+  <div class="row">
+    <a class="e1" href="/download/plt-taivideo-ext.zip" download>⬇ Tải extension</a>
+    <button class="lk e2" id="ext-guide-btn">Cách cài</button>
+  </div>
+</div>
+
+<div class="modal" id="m-ext"><div class="mbox">
+  <button class="x" data-close>×</button>
+  <h3>🧩 Cài extension PLT Tải Video</h3>
+  <ol>
+    <li>Tải file zip rồi <b>giải nén</b> ra một thư mục cố định.</li>
+    <li>Mở <b>chrome://extensions</b> (Edge: edge://extensions).</li>
+    <li>Bật <b>Chế độ dành cho nhà phát triển</b> ở góc phải.</li>
+    <li>Bấm <b>Tải tiện ích đã giải nén</b> → chọn thư mục vừa giải nén.</li>
+    <li>Ghim biểu tượng PLT ra thanh công cụ. Mở video, bấm biểu tượng để tải.</li>
+  </ol>
+</div></div>
+
+<div class="modal" id="m-tg"><div class="mbox">
+  <button class="x" data-close>×</button>
+  <h3>✈️ Kết nối Telegram (chỉ 1 lần)</h3>
+  <ol>
+    <li>Bấm nút bên dưới để mở bot <b id="bot-name"></b> trên Telegram.</li>
+    <li>Bấm <b>Start / Bắt đầu</b>.</li>
+    <li>Bot gửi <b>mã kết nối</b>: chạm vào mã để copy, quay lại đây dán vào ô dưới.</li>
+  </ol>
+  <a class="big" id="bot-link" href="#" target="_blank" rel="noopener">Mở bot Telegram</a>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <input id="tg-code" placeholder="Dán mã kết nối vào đây" style="flex:1;min-width:0;border:1.5px solid var(--line);border-radius:10px;padding:10px;font:inherit">
+    <button id="tg-code-ok" style="border:0;background:var(--green);color:#fff;font:inherit;font-weight:700;border-radius:10px;padding:0 16px;cursor:pointer">Kết nối</button>
+  </div>
+</div></div>
+
+<script>
+/* ====== ĐẠI CA SỬA THÔNG TIN Ở ĐÂY ====== */
+const CONFIG = {
+  name:  "PHÁT LỘC TECH",
+  slogan:"Linh phụ kiện máy tính · Dịch vụ tin học",
+  web:   "https://phatloctech.vn",
+  phone: "0900 000 000",        // TODO: số hotline
+  zalo:  "0900000000",          // TODO: số Zalo (viết liền)
+  addr:  "Bến Lức, Long An",    // TODO: địa chỉ cửa hàng
+  mail:  "lienhe@phatloctech.vn", // TODO: email nhận yêu cầu gỡ bản quyền
+  promo: "Phát Lộc Tech chuyên linh phụ kiện máy tính, sửa chữa nâng cấp, lắp mạng & camera, và giải pháp công nghệ cho cửa hàng, doanh nghiệp. Tư vấn miễn phí, giá tốt."
+};
+/* ======================================== */
+
+const logoSVG = `<svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true">
+ <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F26B1D"/><stop offset=".55" stop-color="#2BB673"/><stop offset="1" stop-color="#7B4BD8"/></linearGradient></defs>
+ <circle cx="20" cy="20" r="18" fill="#fff" stroke="url(#g)" stroke-width="3.5"/>
+ <text x="9" y="26" font-family="Be Vietnam Pro,Arial" font-weight="800" font-size="15" fill="#E8501E">P</text>
+ <text x="17.5" y="26" font-family="Be Vietnam Pro,Arial" font-weight="800" font-size="15" fill="#2BB673">L</text>
+ <text x="24.5" y="26" font-family="Be Vietnam Pro,Arial" font-weight="800" font-size="15" fill="#16213E">T</text></svg>`;
+const $ = s => document.querySelector(s);
+const zaloUrl = "https://zalo.me/" + CONFIG.zalo;
+$("#logo-slot").innerHTML = logoSVG + `<span>${CONFIG.name}<small>${CONFIG.slogan}</small></span>`;
+["#zalo-top","#zalo-float"].forEach(s => $(s).href = zaloUrl);
+["#web-link","#web-btn","#f-web"].forEach(s => $(s).href = CONFIG.web);
+$("#f-web b").textContent = CONFIG.web.replace(/^https?:\/\//,"");
+$("#call-btn").href = "tel:" + CONFIG.phone.replace(/\s/g,"");
+$("#promo-text").textContent = CONFIG.promo;
+$("#f-name").textContent = CONFIG.name;
+$("#f-addr").textContent = CONFIG.addr;
+$("#f-phone").textContent = CONFIG.phone;
+$("#f-mail").textContent = CONFIG.mail;
+
+const input = $("#url"), res = $("#result"), go = $("#go");
+const detect = u => /douyin/i.test(u) ? "douyin" : /youtu/i.test(u) ? "youtube" : /facebook|fb\.watch|fb\.com/i.test(u) ? "facebook" : null;
+input.addEventListener("input", () => {
+  const p = detect(input.value);
+  if (p) document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.p === p));
+});
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("on")); t.classList.add("on"); input.focus();
+});
+$("#paste").onclick = async () => {
+  try { input.value = await navigator.clipboard.readText(); input.dispatchEvent(new Event("input")); }
+  catch { input.focus(); alert("Trình duyệt chặn dán tự động, bạn nhấn giữ ô nhập để dán nhé."); }
+};
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtSize = b => !b ? "Chưa rõ" : b >= 1073741824 ? (b/1073741824).toFixed(2) + " GB" : (b/1048576).toFixed(1) + " MB";
+const dur = s => s ? `${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,"0")}` : "";
+const PNAME = {facebook:"Facebook", douyin:"Douyin", youtube:"YouTube"};
+const LS = { get:k=>{try{return localStorage.getItem(k)}catch{return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}, del:k=>{try{localStorage.removeItem(k)}catch{}} };
+let cur = null, sel = 0, BOT = "PLT_TaiVideo_bot";
+
+function toast(t, ms = 3500) {
+  const d = document.createElement("div"); d.className = "toast"; d.textContent = t;
+  document.body.append(d); setTimeout(() => d.remove(), ms);
+}
+function openModal(id){ $(id).classList.add("show"); }
+document.querySelectorAll(".modal").forEach(m => m.addEventListener("click", e => {
+  if (e.target === m || e.target.hasAttribute("data-close")) m.classList.remove("show");
+}));
+
+async function fetchInfo(url, preLabel) {
+  go.disabled = true; go.textContent = "Đang xử lý...";
+  res.innerHTML = `<div class="card loading"><div class="spin"></div>Đang lấy video và đo dung lượng, chờ vài giây...</div>`;
+  try {
+    const r = await fetch("/api/info", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({url})});
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || "Có lỗi xảy ra");
+    cur = d;
+    const i = preLabel ? d.formats.findIndex(f => f.label === preLabel) : -1;
+    sel = i >= 0 ? i : 0;
+    render();
+  } catch (err) {
+    res.innerHTML = `<div class="card err">⚠️ ${esc(err.message === "Failed to fetch" ? "Mất kết nối, vui lòng thử lại." : err.message)}</div>`;
+  } finally { go.disabled = false; go.textContent = "Tải video"; }
+}
+$("#form").onsubmit = e => { e.preventDefault(); const u = input.value.trim(); if (!u) return input.focus(); fetchInfo(u); };
+
+function render() {
+  const d = cur, lim = d.tg_limit || 52428800;
+  const firstAv = d.formats.findIndex(f => f.kind === "av");
+  const items = d.formats.map((f, i) => {
+    const desc = f.kind === "av" ? "Hình + tiếng" : f.kind === "video" ? "Chỉ hình, không tiếng" : "Chỉ âm thanh";
+    const badges = (i === firstAv ? `<span class="badge b-best">Khuyên dùng</span>` : "")
+      + (f.filesize && f.filesize > lim ? `<span class="badge b-big">&gt; 50MB</span>` : "")
+      + (f.kind === "video" ? `<span class="badge b-mute">Không tiếng</span>` : "");
+    return `<label class="q ${i === sel ? "on" : ""}">
+      <input type="radio" name="q" value="${i}" ${i === sel ? "checked" : ""}>
+      <div class="ql"><b>${esc(f.label)}</b>${badges}<small>${desc} · ${esc(f.ext.toUpperCase())}</small></div>
+      <div class="sz">${fmtSize(f.filesize)}</div></label>`;
+  }).join("");
+
+  res.innerHTML = `<div class="card"><div class="res">
+      ${d.thumbnail ? `<img src="${esc(d.thumbnail)}" alt="" referrerpolicy="no-referrer">` : ""}
+      <div style="flex:1;min-width:0">
+        <h3>${esc(d.title || "Video")}</h3>
+        <div class="meta">${PNAME[d.platform] || ""}${d.duration ? " · " + dur(d.duration) : ""}</div>
+        <div class="ch-title">1. Chọn chất lượng</div>
+        <div class="q-list">${items}</div>
+        <div class="ch-title">2. Chọn nơi lưu</div>
+        <div class="channels">
+          <button class="ch ch-dl" id="btn-dl"><span class="ic">⬇️</span><span><b>Tải về máy</b><small>Lưu vào điện thoại / máy tính</small></span></button>
+          <button class="ch ch-tg" id="btn-tg"><span class="ic">✈️</span><span><b>Gửi qua Telegram</b><small id="tg-sub">Bot gửi video cho bạn</small></span></button>
+        </div>
+        <div class="tg-state" id="tg-state"></div>
+        <div class="tip" id="dl-tip" style="display:none">Video mở ra tab mới? Máy tính: chuột phải → <b>Lưu video thành…</b>. Điện thoại: bấm <b>⋮ → Tải xuống</b>. iPhone nên chọn <b>Gửi qua Telegram</b> để lưu dễ hơn.</div>
+        ${d.platform === "youtube" ? `<div class="tip">YouTube: nút Tải về máy có thể báo lỗi 403. Khi đó bạn chọn <b>Gửi qua Telegram</b> (video dưới 50MB).</div>` : ""}
+      </div></div></div>`;
+
+  res.querySelectorAll('input[name="q"]').forEach(r => r.onchange = () => { sel = +r.value; render(); });
+  $("#btn-dl").onclick = () => {
+    window.open(d.formats[sel].url, "_blank", "noopener,noreferrer");
+    $("#dl-tip").style.display = "block";
+  };
+  $("#btn-tg").onclick = sendTelegram;
+  updateTgState();
+}
+
+function updateTgState() {
+  if (!cur) return;
+  const f = cur.formats[sel], lim = cur.tg_limit || 52428800;
+  const btn = $("#btn-tg"), sub = $("#tg-sub");
+  const tooBig = f.filesize && f.filesize > lim;
+  btn.disabled = !!tooBig;
+  sub.textContent = tooBig ? "Quá 50MB, chọn chất lượng thấp hơn" : f.filesize ? "Bot gửi video cho bạn" : "Chưa rõ dung lượng, vẫn thử được";
+  const name = LS.get("plt_tg_name");
+  $("#tg-state").innerHTML = LS.get("plt_tg")
+    ? `Telegram đã kết nối${name ? ": <b>" + esc(name) + "</b>" : ""} · <a id="tg-re">Kết nối lại</a>`
+    : `Chưa kết nối Telegram · <a id="tg-re">Kết nối ngay</a>`;
+  $("#tg-re").onclick = connectTelegram;
+}
+
+function connectTelegram() {
+  if (cur) LS.set("plt_pending", JSON.stringify({ link: cur.link, label: cur.formats[sel].label }));
+  $("#bot-name").textContent = "@" + BOT;
+  $("#bot-link").href = `https://t.me/${BOT}?start=web`;
+  openModal("#m-tg");
+}
+
+async function sendTelegram() {
+  const token = LS.get("plt_tg");
+  if (!token) return connectTelegram();
+  const btn = $("#btn-tg"), f = cur.formats[sel];
+  btn.disabled = true; $("#tg-sub").textContent = "Đang tải và gửi, chờ chút...";
+  try {
+    const r = await fetch("/api/tg", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ link: cur.link, label: f.label, token })});
+    const d = await r.json();
+    if (d.need_connect) { LS.del("plt_tg"); toast(d.error); connectTelegram(); return; }
+    if (!d.ok) throw new Error(d.error);
+    toast("✅ Đã gửi video vào Telegram của bạn!");
+    $("#tg-sub").textContent = "Đã gửi ✓ Mở Telegram để xem";
+  } catch (e) {
+    toast("⚠️ " + (e.message || "Gửi thất bại"));
+    $("#tg-sub").textContent = "Gửi lỗi, bấm để thử lại";
+  } finally { btn.disabled = false; }
+}
+
+/* ===== Khởi động ===== */
+fetch("/api/tg").then(r => r.json()).then(j => { if (j.bot) BOT = j.bot; }).catch(() => {});
+(function initTelegramReturn() {
+  const q = new URLSearchParams(location.search);
+  if (q.get("tg")) {
+    LS.set("plt_tg", q.get("tg"));
+    if (q.get("n")) LS.set("plt_tg_name", q.get("n"));
+    history.replaceState(null, "", location.pathname);
+    toast("✅ Đã kết nối Telegram!");
+    const p = JSON.parse(LS.get("plt_pending") || "null");
+    LS.del("plt_pending");
+    if (p?.link) { input.value = p.link; fetchInfo(p.link, p.label); }
+  }
+})();
+
+$("#tg-code-ok").onclick = () => {
+  const c = $("#tg-code").value.trim();
+  if (!/^[A-Za-z0-9_-]+\.[a-f0-9]{20}$/.test(c)) return toast("Mã kết nối không đúng, vui lòng copy lại từ bot.");
+  LS.set("plt_tg", c); LS.del("plt_pending");
+  $("#m-tg").classList.remove("show");
+  toast("✅ Đã kết nối Telegram!");
+  if (cur) { updateTgState(); sendTelegram(); }
+};
+
+/* Góc extension: chỉ máy tính */
+if (!LS.get("plt_ext_hide")) $("#ext-card").classList.add("show");
+$("#ext-x").onclick = () => { $("#ext-card").classList.remove("show"); LS.set("plt_ext_hide", "1"); };
+$("#ext-guide-btn").onclick = () => openModal("#m-ext");
+</script>
+</body>
+</html>

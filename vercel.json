@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/info.py":  { "maxDuration": 60, "includeFiles": "lib/**" },
+    "api/tg.py":    { "maxDuration": 60, "includeFiles": "lib/**" },
+    "api/tgbot.py": { "maxDuration": 60, "includeFiles": "lib/**" }
+  }
+}
