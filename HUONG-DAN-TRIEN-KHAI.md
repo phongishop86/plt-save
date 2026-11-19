@@ -1,4 +1,4 @@
-# PLT Tải Video – Web v1.1.0 (build 20261119-1120)
+# PLT Tải Video – Web v1.1.0 (build 20261119-1605)
 
 Tính năng: chọn chất lượng có hiện dung lượng → chọn nơi lưu: **Tải về máy** hoặc **Gửi qua Telegram** (bot, ≤50MB).
 Góc **Extension** chỉ hiện trên máy tính, file nằm ở `download/plt-taivideo-ext.zip`.
@@ -23,7 +23,7 @@ Mở `index.html`, tìm khối `CONFIG`: hotline, Zalo, địa chỉ, email.
 | `TG_BOT_USERNAME` | username bot, không có @ (vd `PLT_TaiVideo_bot`) |
 | `LINK_SECRET` | chuỗi ngẫu nhiên dài, tự gõ ~30 ký tự |
 | `TG_WEBHOOK_SECRET` | chuỗi ngẫu nhiên khác, chỉ dùng chữ, số, gạch dưới |
-| `SITE_URL` | `https://v-save.phatloctech.vn` |
+| `SITE_URL` | `https://save.phatloctech.vn` |
 | `SHOP_URL` | `https://phatloctech.vn` |
 
 4. Bấm **Deploy**.
@@ -34,12 +34,12 @@ Mở `index.html`, tìm khối `CONFIG`: hotline, Zalo, địa chỉ, email.
 Mở trình duyệt, dán link sau (thay chỗ <...>), nhấn Enter:
 
 ```
-https://api.telegram.org/bot<TG_BOT_TOKEN>/setWebhook?url=https://v-save.phatloctech.vn/api/tgbot&secret_token=<TG_WEBHOOK_SECRET>&allowed_updates=["message"]
+https://api.telegram.org/bot<TG_BOT_TOKEN>/setWebhook?url=https://save.phatloctech.vn/api/tgbot&secret_token=<TG_WEBHOOK_SECRET>&allowed_updates=["message"]
 ```
 Thấy `"ok":true` là xong. Mở bot, gõ `/start` để thử.
 
-## 5. Gắn tên miền `v-save.phatloctech.vn`
-Vercel → Settings → Domains → thêm `v-save.phatloctech.vn`. Ở nơi quản lý tên miền thêm bản ghi **CNAME**: tên `v-save`, giá trị `cname.vercel-dns.com`.
+## 5. Gắn tên miền `save.phatloctech.vn`
+Vercel → Settings → Domains → thêm `save.phatloctech.vn`. Vào trang quản lý DNS ở **Nhân Hòa** thêm bản ghi **CNAME**: tên `save`, giá trị đúng như Vercel hiện (thường là `cname.vercel-dns.com`).
 
 ## Cách người dùng gửi Telegram
 1. Chọn chất lượng → bấm **Gửi qua Telegram**.
