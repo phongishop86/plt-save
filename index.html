@@ -9,6 +9,10 @@
 <meta property="og:description" content="Dán link, chọn chất lượng, tải về máy hoặc gửi qua Telegram. Miễn phí.">
 <link rel="icon" type="image/png" href="/assets/favicon-32.png">
 <link rel="apple-touch-icon" href="/assets/logo-192.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0F172A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PLT Save">
 <meta property="og:image" content="/assets/logo-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -148,6 +152,16 @@ footer a:hover{color:#fff}
 .mbox li{margin:6px 0}
 .mbox .x{position:absolute;right:12px;top:8px;border:0;background:none;font-size:22px;color:#94A3B8;cursor:pointer}
 .mbox .big{display:block;text-align:center;background:#229ED9;color:#fff;font-weight:700;padding:12px;border-radius:12px;margin-top:14px}
+.share{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sh{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13.5px}
+.sh h4{font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sh ol{padding-left:18px;color:var(--muted)}
+.sh li{margin:2px 0}
+.sh b{color:var(--text)}
+.sh code{background:#F1F5F9;padding:1px 5px;border-radius:5px;font-size:12px;word-break:break-all}
+.sh .inst{margin-top:8px;border:0;background:var(--grad);color:#fff;font:inherit;font-weight:700;padding:8px 14px;border-radius:10px;cursor:pointer;display:none}
+.sh.me{order:-1;border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset}
+@media(max-width:720px){.share{grid-template-columns:1fr}}
 .float-zalo{position:fixed;right:16px;bottom:16px;width:54px;height:54px;border-radius:50%;background:#0068FF;color:#fff;display:grid;place-items:center;font-weight:800;box-shadow:0 8px 20px rgba(0,104,255,.4);z-index:30}
 </style>
 </head>
@@ -192,6 +206,31 @@ footer a:hover{color:#fff}
       <div class="step"><em>1</em><div><b>Sao chép link</b>Bấm Chia sẻ → Sao chép liên kết trên Facebook, Douyin, YouTube.</div></div>
       <div class="step"><em>2</em><div><b>Dán và bấm Tải video</b>Chọn chất lượng, xem trước dung lượng.</div></div>
       <div class="step"><em>3</em><div><b>Chọn nơi lưu</b>Tải về máy, hoặc gửi qua Telegram (iPhone nên chọn cách này).</div></div>
+    </div>
+  </section>
+
+  <section id="chia-se">
+    <h2 class="sec-title">⚡ Tải nhanh bằng nút Chia sẻ</h2>
+    <div class="share">
+      <div class="sh" id="sh-android">
+        <h4>🤖 Android</h4>
+        <ol>
+          <li>Mở trang này bằng <b>Chrome</b> → bấm <b>Cài ứng dụng</b> bên dưới (hoặc ⋮ → <b>Thêm vào màn hình chính</b>).</li>
+          <li>Trên Facebook / Douyin / YouTube: bấm <b>Chia sẻ</b> → chọn <b>PLT Save</b>.</li>
+          <li>Ứng dụng tự mở và lấy video ngay.</li>
+        </ol>
+        <button class="inst" id="btn-install">📲 Cài ứng dụng PLT Save</button>
+      </div>
+      <div class="sh" id="sh-ios">
+        <h4>🍎 iPhone (Phím tắt, làm 1 lần)</h4>
+        <ol>
+          <li>Mở app <b>Phím tắt</b> → bấm <b>+</b>, đặt tên <b>PLT Save</b>.</li>
+          <li>Bấm ⓘ → bật <b>Hiển thị trong Bảng chia sẻ</b>.</li>
+          <li>Thêm tác vụ <b>Mã hoá URL</b> (đầu vào: <b>Đầu vào phím tắt</b>).</li>
+          <li>Thêm tác vụ <b>Mở URL</b>: <code>https://save.phatloctech.vn/?url=</code> + <b>Văn bản đã mã hoá</b>.</li>
+          <li>Trên Facebook: <b>Chia sẻ</b> → <b>Thêm</b> → chọn <b>PLT Save</b>.</li>
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -452,6 +491,37 @@ $("#tg-code-ok").onclick = () => {
   toast("✅ Đã kết nối Telegram!");
   if (cur) { updateTgState(); sendTelegram(); }
 };
+
+/* ===== Nhận link từ nút Chia sẻ (Android: PWA share target, iPhone: Phím tắt ?url=) ===== */
+(function initShare() {
+  const q = new URLSearchParams(location.search);
+  if (q.get("tg")) return;
+  const raw = [q.get("url"), q.get("text"), q.get("title")].filter(Boolean).join(" ");
+  if (!raw) return;
+  history.replaceState(null, "", location.pathname);
+  const m = raw.match(/https?:\/\/\S+/);
+  if (!m) return toast("Không tìm thấy link video trong nội dung chia sẻ.");
+  input.value = m[0];
+  input.dispatchEvent(new Event("input"));
+  fetchInfo(m[0]);
+})();
+
+/* Cài ứng dụng (Android / máy tính Chrome, Edge) */
+let installEvt = null;
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; $("#btn-install").style.display = "inline-block"; });
+$("#btn-install").onclick = async () => {
+  if (!installEvt) return;
+  installEvt.prompt();
+  const r = await installEvt.userChoice;
+  if (r.outcome === "accepted") { toast("✅ Đã cài PLT Save! Giờ bấm Chia sẻ trên Facebook → PLT Save"); $("#btn-install").style.display = "none"; }
+  installEvt = null;
+};
+window.addEventListener("appinstalled", () => { $("#btn-install").style.display = "none"; });
+// làm nổi hướng dẫn đúng loại máy
+const ua = navigator.userAgent;
+if (/iPhone|iPad|iPod/i.test(ua)) $("#sh-ios").classList.add("me");
+else if (/Android/i.test(ua)) $("#sh-android").classList.add("me");
 
 /* Góc extension: chỉ máy tính */
 if (!LS.get("plt_ext_hide")) $("#ext-card").classList.add("show");

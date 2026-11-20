@@ -1,4 +1,4 @@
-# PLT Tải Video – Web v1.3.0 (build 20261119-1640)
+# PLT Tải Video – Web v1.4.0 (build 20261120-1450)
 
 Tính năng: chọn chất lượng có hiện dung lượng → chọn nơi lưu: **Tải về máy** hoặc **Gửi qua Telegram** (bot, ≤50MB).
 Góc **Extension** chỉ hiện trên máy tính, file nằm ở `download/plt-taivideo-ext.zip`.
@@ -58,3 +58,9 @@ Vercel → Settings → Domains → thêm `save.phatloctech.vn`. Vào trang qu�
 - `api/tgbot.py` – webhook của bot (Start, nhận link)
 - `lib/core.py` – lõi xử lý chung
 - `download/` – extension cho máy tính
+
+## Tải nhanh bằng nút Chia sẻ (v1.4.0)
+- **Android**: mở web bằng Chrome → bấm **Cài ứng dụng PLT Save** (hoặc ⋮ → Thêm vào màn hình chính). Sau đó trên Facebook bấm **Chia sẻ → PLT Save**, web tự mở và lấy video.
+- **iPhone**: tạo Phím tắt (hướng dẫn ngay trên web, mục "Tải nhanh bằng nút Chia sẻ"), mở link `https://save.phatloctech.vn/?url=<link đã mã hoá>`.
+- Web tự đọc tham số `url`, `text`, `title` trên đường dẫn, lấy link video và bấm tải tự động.
+- File liên quan: `manifest.webmanifest`, `sw.js`.
