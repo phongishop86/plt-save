@@ -496,7 +496,11 @@ $("#tg-code-ok").onclick = () => {
 (function initShare() {
   const q = new URLSearchParams(location.search);
   if (q.get("tg")) return;
-  const raw = [q.get("url"), q.get("text"), q.get("title")].filter(Boolean).join(" ");
+  // Phím tắt iPhone có thể gửi link CHƯA mã hoá (link có dấu & bị tách) -> lấy nguyên phần sau "url="
+  let fromUrl = q.get("url") || "";
+  const mm = location.search.match(/[?&]url=(.*)$/);
+  if (mm) { try { fromUrl = decodeURIComponent(mm[1]); } catch { fromUrl = mm[1]; } }
+  const raw = [fromUrl, q.get("text"), q.get("title")].filter(Boolean).join(" ");
   if (!raw) return;
   history.replaceState(null, "", location.pathname);
   const m = raw.match(/https?:\/\/\S+/);
