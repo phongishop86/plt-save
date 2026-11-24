@@ -240,8 +240,7 @@ def get_info(raw: str, with_size=True):
             fill_sizes(data["formats"], platform)
         for f in data["formats"]:
             f["tg_ok"] = bool(f.get("filesize")) and f["filesize"] <= TG_LIMIT
-            if f["kind"] == "merge":
-                f["dl"] = make_dl(f, data.get("title") or "video", platform)
+            f["dl"] = make_dl(f, data.get("title") or "video", platform)
         return 200, {"ok": True, "platform": platform, "link": url, "tg_limit": TG_LIMIT, **data}
     except Exception as e:  # noqa
         return 422, {"ok": False, "platform": platform, "error": friendly_error(e)}
@@ -292,9 +291,18 @@ def _b64d(s):
     return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
 
 
+def file_name(title, ext):
+    """Tên file tải về: plt-save_<tên video>.<đuôi> – để người dùng nhớ tới trang."""
+    return f"plt-save_{safe_name(title)}.{ext}"
+
+
 def make_dl(fmt, title, platform):
-    payload = {"v": fmt["video_url"], "a": fmt["audio_url"], "p": platform,
-               "n": f"{safe_name(title)}_{safe_name(fmt['label'])}.mp4", "x": int(time.time()) + 7200}
+    """Link tải qua máy chủ: bản ghép (hình + tiếng) hoặc tải thẳng 1 file, đều đặt tên plt-save_..."""
+    if fmt["kind"] == "merge":
+        payload = {"v": fmt["video_url"], "a": fmt["audio_url"]}
+    else:
+        payload = {"v": fmt["url"]}
+    payload.update({"p": platform, "n": file_name(title, fmt["ext"]), "x": int(time.time()) + 7200})
     d = _b64e(json.dumps(payload, separators=(",", ":")).encode())
     sig = hmac.new(LINK_SECRET.encode(), d.encode(), hashlib.sha256).hexdigest()[:32]
     return f"/api/dl?d={d}&s={sig}"
@@ -312,7 +320,7 @@ def read_dl(d, sig):
         return None
     if p.get("x", 0) < time.time():
         return None
-    for u in (p.get("v"), p.get("a")):
+    for u in [p.get("v")] + ([p["a"]] if p.get("a") else []):
         host = urllib.parse.urlparse(u or "").hostname or ""
         if not any(host == h or host.endswith("." + h) for h in DL_HOSTS):
             return None
@@ -393,7 +401,7 @@ def send_to_chat(chat_id, info, fmt, platform):
         else:
             path = download_tmp(fmt["url"], platform, fmt["ext"]); paths.append(path)
         caption = f"🎬 {title[:300]}\n🎞 {fmt['label']}\n\n{PROMO}"
-        fname = f"{safe_name(title)}_{safe_name(fmt['label'])}.{fmt['ext']}"
+        fname = file_name(title, fmt["ext"])
         with open(path, "rb") as fh:
             if fmt["kind"] == "audio":
                 tg("sendAudio", data={"chat_id": chat_id, "caption": caption, "title": title[:60]},

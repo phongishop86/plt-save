@@ -413,10 +413,10 @@ function render() {
   res.querySelectorAll('input[name="q"]').forEach(r => r.onchange = () => { sel = +r.value; render(); });
   $("#btn-dl").onclick = () => {
     const f = d.formats[sel];
-    if (f.kind === "merge" && f.dl) {          // máy chủ ghép rồi tải thẳng về máy
+    if (f.dl) {                                // tải qua máy chủ, tên file plt-save_<tên video>
       location.href = f.dl;
       $("#dl-sub").textContent = "Đang chuẩn bị file, sẽ tự tải sau vài giây...";
-      toast("⏳ Đang ghép video, file sẽ tự tải về sau vài giây");
+      toast(f.kind === "merge" ? "⏳ Đang ghép video, file sẽ tự tải về sau vài giây" : "⏳ File sẽ tự tải về sau vài giây");
       return;
     }
     window.open(f.url, "_blank", "noopener,noreferrer");
