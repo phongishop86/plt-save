@@ -6,6 +6,6 @@ Trang web con của **Phát Lộc Tech**: https://save.phatloctech.vn
 - Extension Chrome cho máy tính: `download/plt-taivideo-ext.zip`
 - Chạy trên Vercel (Python serverless + yt-dlp)
 
-Phiên bản: web v1.4.0 (build 20261124-0750) · extension v1.0.0 (build 20261124-0750)
+Phiên bản: web v1.4.0 (build 20261124-0750) · extension PLT Save v1.0.0 (build 20261128-1630)
 
 Hướng dẫn triển khai: xem [HUONG-DAN-TRIEN-KHAI.md](HUONG-DAN-TRIEN-KHAI.md)
